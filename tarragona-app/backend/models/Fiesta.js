@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const FiestaSchema = new mongoose.Schema({
   cedula: String,
@@ -7,4 +7,4 @@ const FiestaSchema = new mongoose.Schema({
   monto: Number
 });
 
-module.exports = mongoose.model("Fiesta", FiestaSchema);
+module.exports = mongoose.model('Fiesta', FiestaSchema);
