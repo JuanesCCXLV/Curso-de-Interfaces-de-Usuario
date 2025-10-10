@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./App.css";
 
 function App() {
   const [cedula, setCedula] = useState("");
@@ -7,63 +8,120 @@ function App() {
   const [horas, setHoras] = useState("");
   const [fiestas, setFiestas] = useState([]);
 
+  // === Registrar nueva fiesta ===
   const registrarFiesta = async (e) => {
     e.preventDefault();
-    const res = await axios.post("http://localhost:4000/fiestas", {
-      cedula,
-      invitados: Number(invitados),
-      horas: Number(horas)
-    });
-    setFiestas([...fiestas, res.data]);
-    setCedula("");
-    setInvitados("");
-    setHoras("");
+    if (!cedula || !invitados || !horas) {
+      alert("Por favor, completa todos los campos antes de registrar.");
+      return;
+    }
+
+    try {
+      const res = await axios.post("http://localhost:4000/fiestas", {
+        cedula,
+        invitados: Number(invitados),
+        horas: Number(horas),
+      });
+      setFiestas([...fiestas, res.data]);
+      setCedula("");
+      setInvitados("");
+      setHoras("");
+    } catch (error) {
+      console.error("Error al registrar la fiesta:", error);
+      alert("Hubo un problema al registrar la fiesta.");
+    }
   };
 
+  // === Obtener todas las fiestas ===
   useEffect(() => {
-    axios.get("http://localhost:4000/fiestas").then(res => setFiestas(res.data));
+    axios
+      .get("http://localhost:4000/fiestas")
+      .then((res) => setFiestas(res.data))
+      .catch((err) => console.error("Error al obtener fiestas:", err));
   }, []);
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-center">Fiestas y Eventos Tarragona</h1>
+    <div className="app-wrapper">
+      {/* Barra superior */}
+      <nav className="navbar">
+        <h2>Panel de Administración</h2>
+      </nav>
 
-      <form onSubmit={registrarFiesta} className="space-y-3 bg-gray-100 p-4 rounded-lg shadow">
-        <input className="w-full p-2 border rounded" placeholder="Cédula"
-          value={cedula} onChange={e => setCedula(e.target.value)} />
-        <input className="w-full p-2 border rounded" placeholder="Cantidad de invitados"
-          value={invitados} onChange={e => setInvitados(e.target.value)} />
-        <input className="w-full p-2 border rounded" placeholder="Horas de fiesta"
-          value={horas} onChange={e => setHoras(e.target.value)} />
-        <button className="bg-blue-500 text-white px-4 py-2 rounded w-full hover:bg-blue-600">
-          Registrar Fiesta
-        </button>
-      </form>
+      {/* Contenido principal */}
+      <main className="container">
+        <header>
+          <h1>Fiestas y Eventos Tarragona</h1>
+          <p>Registro y control de eventos en la base de datos</p>
+        </header>
 
-      <h2 className="text-xl mt-6 mb-2 font-semibold">Fiestas registradas</h2>
-      <table className="w-full border">
-        <thead>
-          <tr className="bg-gray-200">
-            <th>Cédula</th>
-            <th>Invitados</th>
-            <th>Horas</th>
-            <th>Monto</th>
-          </tr>
-        </thead>
-        <tbody>
-          {fiestas.map((f, i) => (
-            <tr key={i} className="text-center border-t">
-              <td>{f.cedula}</td>
-              <td>{f.invitados}</td>
-              <td>{f.horas}</td>
-              <td>${f.monto.toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        {/* Formulario */}
+        <section className="card">
+          <h3>Registrar nueva fiesta</h3>
+          <form onSubmit={registrarFiesta}>
+            <input
+              type="text"
+              placeholder="Cédula"
+              value={cedula}
+              onChange={(e) => setCedula(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Cantidad de invitados"
+              value={invitados}
+              onChange={(e) => setInvitados(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Horas de fiesta"
+              value={horas}
+              onChange={(e) => setHoras(e.target.value)}
+            />
+            <button type="submit">Registrar Fiesta</button>
+          </form>
+        </section>
+
+        {/* Tabla de registros */}
+        <section className="card">
+          <h3>Listado de Fiestas Registradas</h3>
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cédula</th>
+                  <th>Invitados</th>
+                  <th>Horas</th>
+                  <th>Monto</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fiestas.length > 0 ? (
+                  fiestas.map((f, i) => (
+                    <tr key={i}>
+                      <td>{f.cedula}</td>
+                      <td>{f.invitados}</td>
+                      <td>{f.horas}</td>
+                      <td>${f.monto.toLocaleString()}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4">No hay registros aún.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      {/* Pie de página */}
+      <footer>
+        <p>© 2025 Fiestas Tarragona — Sistema de Gestión Interna</p>
+      </footer>
     </div>
   );
 }
 
 export default App;
+
 
